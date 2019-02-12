@@ -16,7 +16,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, ConfigurableAuthenticatorFactory {
 
 
-    public static final String PROVIDER_ID = "secret-question-authenticator";
+    public static final String PROVIDER_ID = "guardiankey-authenticator";
     private static final GuardianKeyAuthenticator SINGLETON = new GuardianKeyAuthenticator();
     private static AuthenticationExecutionModel.Requirement[] REQUIREMENT_CHOICES = {
             AuthenticationExecutionModel.Requirement.REQUIRED,
@@ -55,14 +55,58 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         property5.setLabel("Service name");
         property5.setHelpText("A service name to identify the service provider. E.g., 'KeyCloak'.");
         property5.setType(ProviderConfigProperty.STRING_TYPE);
+        property5.setDefaultValue("KeyCloak");
+        
         ProviderConfigProperty property6;
         property6 = new ProviderConfigProperty();
         property6.setName("guardiankey.reverse");
         property6.setLabel("Reverse DNS");
         property6.setHelpText("Enable reverse DNS resolve?");
         property6.setType(ProviderConfigProperty.BOOLEAN_TYPE);
-        // reverse
-        // service identification
+        
+        List<String> listOptions=new ArrayList<String>();
+        listOptions.add("None");
+        listOptions.add("Admin only");
+        listOptions.add("Users only");
+        listOptions.add("Admin and users");
+        ProviderConfigProperty property7;
+        property7 = new ProviderConfigProperty();
+        property7.setName("guardiankey.emailmode");
+        property7.setLabel("Send e-mails to");
+        property7.setHelpText("Who should receive event notification e-mails?");
+        property7.setType(ProviderConfigProperty.MULTIVALUED_LIST_TYPE);
+        property7.setOptions(listOptions);
+        
+        ProviderConfigProperty property8;
+        property8 = new ProviderConfigProperty();
+        property8.setName("guardiankey.emailsubject");
+        property8.setLabel("E-mail subject");
+        property8.setHelpText("The e-mail subject. E.g., 'Security Alert!'.");
+        property8.setType(ProviderConfigProperty.STRING_TYPE);
+        property8.setDefaultValue("Security Alert!");
+        
+        ProviderConfigProperty property9;
+        property9 = new ProviderConfigProperty();
+        property9.setName("guardiankey.adminemail");
+        property9.setLabel("Admin e-mail");
+        property9.setHelpText("The admin e-mail, that may receive alert e-mails.");
+        property9.setType(ProviderConfigProperty.STRING_TYPE);
+        
+        ProviderConfigProperty property10;
+        property10 = new ProviderConfigProperty();
+        property10.setName("guardiankey.apiurl");
+        property10.setLabel("API URL");
+        property10.setHelpText("The GuardianKey API URL. E.g., 'https://api.guardiankey.io'");
+        property10.setDefaultValue("https://api.guardiankey.io");
+        property10.setType(ProviderConfigProperty.STRING_TYPE);
+        
+        ProviderConfigProperty property11;
+        property11 = new ProviderConfigProperty();
+        property11.setName("guardiankey.sendonly");
+        property11.setLabel("Send only");
+        property11.setHelpText("Only send events to GuardianKey? If you choose no, the module may block risky auth attempts, depending on your policy set-up in the GuardianKey's panel.");
+        property11.setType(ProviderConfigProperty.BOOLEAN_TYPE);
+        property11.setDefaultValue(true);
         
         configProperties.add(property1);
         configProperties.add(property2);
@@ -70,6 +114,12 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         configProperties.add(property4);
         configProperties.add(property5);
         configProperties.add(property6);
+        configProperties.add(property7);
+        configProperties.add(property8);
+        configProperties.add(property9);
+        configProperties.add(property9);
+        configProperties.add(property10);
+        configProperties.add(property11);
     }
     
 	
@@ -77,7 +127,9 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
 	public Authenticator create(KeycloakSession session) { return SINGLETON; }
 
 	@Override
-	public void init(Scope config) { }
+	public void init(Scope config) { 
+		SINGLETON.GKAPI.setConfig(config);
+	}
 
 	@Override
 	public void postInit(KeycloakSessionFactory factory) { }
@@ -92,7 +144,7 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
 
 	@Override
 	public String getHelpText() {
-		 return "A secret question that a user has to answer. i.e. What is your mother's maiden name.";
+		 return "Submits the authentication attempt to the GuardianKey engine to evaluate attack risks.";
 	}
 
 	@Override
