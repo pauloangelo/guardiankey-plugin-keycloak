@@ -7,6 +7,7 @@ import javax.ws.rs.core.Response;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
+import org.keycloak.authentication.FlowStatus;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
@@ -18,20 +19,39 @@ public class GuardianKeyAuthenticator implements Authenticator {
 	
     public final GuardianKeyAPI GKAPI = new GuardianKeyAPI();
 
-
 	@Override
 	public void close() { }
 
 	@Override
 	public void authenticate(AuthenticationFlowContext context) {
 			
+		String email;
 		Map<String,String> config = context.getAuthenticatorConfig().getConfig();
+		KeycloakSession session = context.getSession();
+		
+		if(context.getUser()==null) {
+			return;
+		}
+		
+		String username=context.getUser().getUsername();
+		
+		// TODO: Check
+		String clientIP = context.getSession().sessions().getUserSession(null,null).getIpAddress();
+		
+		
+		boolean failed = context.getStatus().equals(FlowStatus.SUCCESS);
+		if(context.getUser().getEmail()!=null) {
+			email = context.getUser().getEmail();
+		}else {
+			email ="";
+		}
+		
 		
 		if(config.get("guardiankey.sendonly").equals("true")) {
-			GKAPI.sendEvent();
+			GKAPI.sendEvent(session,username,email,failed,"Authentication", clientIP);
 		}else {
 			//TODO: Set timeout
-			Map<String,String> checkReturn = GKAPI.checkAccess();
+			Map<String,String> checkReturn = GKAPI.checkAccess(session,username,email,failed,"Authentication", clientIP);
 			
 			if(checkReturn.get("response").equals("BLOCK")) {
                  Response challenge = context.form()
@@ -53,7 +73,6 @@ public class GuardianKeyAuthenticator implements Authenticator {
 		// TODO Auto-generated method stub
 		Map<String,String> config = context.getAuthenticatorConfig().getConfig();
 
-		
 	}
 
 	@Override
