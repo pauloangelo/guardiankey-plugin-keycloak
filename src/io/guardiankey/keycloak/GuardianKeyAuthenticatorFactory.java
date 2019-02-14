@@ -57,6 +57,14 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         property5.setType(ProviderConfigProperty.STRING_TYPE);
         property5.setDefaultValue("KeyCloak");
         
+        ProviderConfigProperty property5b;
+        property5b = new ProviderConfigProperty();
+        property5b.setName("guardiankey.agentid");
+        property5b.setLabel("Agent ID");
+        property5b.setHelpText("An information (hash, number, or name) to identify the event sender system.");
+        property5b.setDefaultValue("KeyCloakServer");
+        property5b.setType(ProviderConfigProperty.STRING_TYPE);
+        
         ProviderConfigProperty property6;
         property6 = new ProviderConfigProperty();
         property6.setName("guardiankey.reverse");
@@ -113,6 +121,7 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         configProperties.add(property3);
         configProperties.add(property4);
         configProperties.add(property5);
+        configProperties.add(property5b);
         configProperties.add(property6);
         configProperties.add(property7);
         configProperties.add(property8);

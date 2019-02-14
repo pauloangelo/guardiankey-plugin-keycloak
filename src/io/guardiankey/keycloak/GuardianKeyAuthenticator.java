@@ -1,5 +1,6 @@
 package io.guardiankey.keycloak;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
@@ -35,8 +36,20 @@ public class GuardianKeyAuthenticator implements Authenticator {
 		
 		String username=context.getUser().getUsername();
 		
-		// TODO: Check
-		String clientIP = context.getSession().sessions().getUserSession(null,null).getIpAddress();
+		String clientIP = context.getSession().sessions().getUserSession(context.getAuthenticationSession().getClient().getRealm(),context.getAuthenticationSession().getClient().getId()).getIpAddress();
+		
+		/*
+		 *  Pegar User-agent, 
+		 *  IP do usuário, 
+		 *  setar timeout no http client
+		 */
+		
+		List<String> userAgents = session.getContext().getRequestHeaders().getRequestHeader("User-agent");
+		String userAgent;
+		if(userAgents.size()>0)
+			userAgent = userAgents.get(0);
+		else
+			userAgent = "";
 		
 		
 		boolean failed = context.getStatus().equals(FlowStatus.SUCCESS);
@@ -46,12 +59,10 @@ public class GuardianKeyAuthenticator implements Authenticator {
 			email ="";
 		}
 		
-		
 		if(config.get("guardiankey.sendonly").equals("true")) {
-			GKAPI.sendEvent(session,username,email,failed,"Authentication", clientIP);
+			GKAPI.sendEvent(session,username,email,failed,"Authentication", clientIP,userAgent);
 		}else {
-			//TODO: Set timeout
-			Map<String,String> checkReturn = GKAPI.checkAccess(session,username,email,failed,"Authentication", clientIP);
+			Map<String,String> checkReturn = GKAPI.checkAccess(session,username,email,failed,"Authentication", clientIP,userAgent);
 			
 			if(checkReturn.get("response").equals("BLOCK")) {
                  Response challenge = context.form()
@@ -60,7 +71,7 @@ public class GuardianKeyAuthenticator implements Authenticator {
 				 context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
 				 return;
 			}else if(checkReturn.get("response").equals("NOTIFY") || checkReturn.get("response").equals("HARD_NOTIFY")) {
-				sendEmail(context,checkReturn);
+				sendEmail(username,email,context,checkReturn);
 			}
 		}
 		
@@ -69,7 +80,7 @@ public class GuardianKeyAuthenticator implements Authenticator {
 		
 	}
 
-	private void sendEmail(AuthenticationFlowContext context, Map<String, String> checkReturn) {
+	private void sendEmail(String username, String email, AuthenticationFlowContext context, Map<String, String> checkReturn) {
 		// TODO Auto-generated method stub
 		Map<String,String> config = context.getAuthenticatorConfig().getConfig();
 
