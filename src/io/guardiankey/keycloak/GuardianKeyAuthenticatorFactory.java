@@ -31,24 +31,28 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         property1.setLabel("Organization ID");
         property1.setHelpText("Hash to identify your organization for GuardianKey.");
         property1.setType(ProviderConfigProperty.STRING_TYPE);
+        
         ProviderConfigProperty property2;
         property2 = new ProviderConfigProperty();
         property2.setName("guardiankey.authgroupid");
         property2.setLabel("AuthGroup ID");
         property2.setHelpText("Hash to identify your authentication group for GuardianKey.");
         property2.setType(ProviderConfigProperty.STRING_TYPE);
+        
         ProviderConfigProperty property3;
         property3 = new ProviderConfigProperty();
         property3.setName("guardiankey.key");
         property3.setLabel("Key");
         property3.setHelpText("The key for cryptographics, in base64.");
         property3.setType(ProviderConfigProperty.STRING_TYPE);
+        
         ProviderConfigProperty property4;
         property4 = new ProviderConfigProperty();
         property4.setName("guardiankey.iv");
         property4.setLabel("IV");
         property4.setHelpText("The IV (Initialization Vector) for the key, in base64.");
         property4.setType(ProviderConfigProperty.STRING_TYPE);
+        
         ProviderConfigProperty property5;
         property5 = new ProviderConfigProperty();
         property5.setName("guardiankey.service");
@@ -137,7 +141,7 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
 
 	@Override
 	public void init(Scope config) { 
-		SINGLETON.GKAPI.setConfig(config);
+		SINGLETON.setConfig(config);
 	}
 
 	@Override

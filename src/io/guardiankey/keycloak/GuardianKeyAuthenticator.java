@@ -1,10 +1,12 @@
 package io.guardiankey.keycloak;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import org.keycloak.Config.Scope;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
@@ -19,6 +21,9 @@ import org.keycloak.models.UserModel;
 public class GuardianKeyAuthenticator implements Authenticator {
 	
     public final GuardianKeyAPI GKAPI = new GuardianKeyAPI();
+	private String emailMode;
+	private String emailSubject;
+	private String adminEmail;
 
 	@Override
 	public void close() { }
@@ -39,8 +44,6 @@ public class GuardianKeyAuthenticator implements Authenticator {
 		String clientIP = context.getSession().sessions().getUserSession(context.getAuthenticationSession().getClient().getRealm(),context.getAuthenticationSession().getClient().getId()).getIpAddress();
 		
 		/*
-		 *  Pegar User-agent, 
-		 *  IP do usuário, 
 		 *  setar timeout no http client
 		 */
 		
@@ -98,5 +101,12 @@ public class GuardianKeyAuthenticator implements Authenticator {
 
 	@Override
 	public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) { }
+	
+	public void setConfig(Scope config) {
+		this.emailMode    = config.get("guardiankey.emailmode");
+		this.emailSubject = config.get("guardiankey.emailsubject");
+		this.adminEmail   = config.get("guardiankey.adminemail");
+		this.GKAPI.setConfig(config);
+	}
 
 }

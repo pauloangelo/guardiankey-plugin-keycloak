@@ -48,7 +48,6 @@ public class GuardianKeyAPI {
 	private boolean reverse = true;
 
 	public void setConfig(Scope config) {
-
 		this.authGroupID = config.get("guardiankey.authgroupid");
 		this.APIURI      = config.get("guardiankey.apiurl");
 		this.orgId 		 = config.get("guardiankey.orgid");
@@ -57,10 +56,6 @@ public class GuardianKeyAPI {
 		this.reverse     = config.getBoolean("guardiankey.reverse");
 		this.key         = Base64.getDecoder().decode(config.get("guardiankey.key"));
 		this.iv          = Base64.getDecoder().decode(config.get("guardiankey.iv"));
-		
-//		guardiankey.emailmode
-//		guardiankey.emailsubject
-//		guardiankey.adminemail
 	}
 
 	private JSONObject postMsg(KeycloakSession session, String URI, String msg) {
