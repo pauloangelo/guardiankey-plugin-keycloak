@@ -1,0 +1,7 @@
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
+<deployment>
+    <dependencies>
+        <module name="com.google.code.gson" />
+    </dependencies>
+</deployment>
+</jboss-deployment-structure>

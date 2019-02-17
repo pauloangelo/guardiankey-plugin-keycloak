@@ -78,9 +78,9 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         
         List<String> listOptions=new ArrayList<String>();
         listOptions.add("None");
-        listOptions.add("Admin only");
-        listOptions.add("Users only");
-        listOptions.add("Admin and users");
+//        listOptions.add("Admin only");
+        listOptions.add("Notify Users");
+//        listOptions.add("Admin and users");
         ProviderConfigProperty property7;
         property7 = new ProviderConfigProperty();
         property7.setName("guardiankey.emailmode");
@@ -97,12 +97,12 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         property8.setType(ProviderConfigProperty.STRING_TYPE);
         property8.setDefaultValue("Security Alert!");
         
-        ProviderConfigProperty property9;
-        property9 = new ProviderConfigProperty();
-        property9.setName("guardiankey.adminemail");
-        property9.setLabel("Admin e-mail");
-        property9.setHelpText("The admin e-mail, that may receive alert e-mails.");
-        property9.setType(ProviderConfigProperty.STRING_TYPE);
+//        ProviderConfigProperty property9;
+//        property9 = new ProviderConfigProperty();
+//        property9.setName("guardiankey.adminemail");
+//        property9.setLabel("Admin e-mail");
+//        property9.setHelpText("The admin e-mail, that may receive alert e-mails.");
+//        property9.setType(ProviderConfigProperty.STRING_TYPE);
         
         ProviderConfigProperty property10;
         property10 = new ProviderConfigProperty();
@@ -129,8 +129,7 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         configProperties.add(property6);
         configProperties.add(property7);
         configProperties.add(property8);
-        configProperties.add(property9);
-        configProperties.add(property9);
+//        configProperties.add(property9);
         configProperties.add(property10);
         configProperties.add(property11);
     }

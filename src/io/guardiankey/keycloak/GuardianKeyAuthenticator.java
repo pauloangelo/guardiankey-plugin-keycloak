@@ -1,6 +1,5 @@
 package io.guardiankey.keycloak;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +10,8 @@ import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.FlowStatus;
+import org.keycloak.email.EmailException;
+import org.keycloak.email.EmailSenderProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
@@ -20,10 +21,8 @@ import org.keycloak.models.UserModel;
 
 public class GuardianKeyAuthenticator implements Authenticator {
 	
-    public final GuardianKeyAPI GKAPI = new GuardianKeyAPI();
-	private String emailMode;
-	private String emailSubject;
-	private String adminEmail;
+    public static final GuardianKeyAPI GKAPI = new GuardianKeyAPI();
+
 
 	@Override
 	public void close() { }
@@ -39,23 +38,31 @@ public class GuardianKeyAuthenticator implements Authenticator {
 			return;
 		}
 		
+		GKAPI.setConfig(config);
+		
 		String username=context.getUser().getUsername();
 		
-		String clientIP = context.getSession().sessions().getUserSession(context.getAuthenticationSession().getClient().getRealm(),context.getAuthenticationSession().getClient().getId()).getIpAddress();
+		String clientIP="";
+		String userAgent="";
+
+		try {
+			 clientIP = context.getSession().sessions().getUserSession(context.getAuthenticationSession().getClient().getRealm(),
+					                                                         context.getAuthenticationSession().getClient().getId()).getIpAddress();
+		} catch (Exception e) {	}
 		
-		/*
-		 *  setar timeout no http client
-		 */
+		try {
+			List<String> userAgents = session.getContext().getRequestHeaders().getRequestHeader("User-agent");
+			if(userAgents.size()>0)
+				userAgent = userAgents.get(0);	
+		} catch (Exception e) {	}
 		
-		List<String> userAgents = session.getContext().getRequestHeaders().getRequestHeader("User-agent");
-		String userAgent;
-		if(userAgents.size()>0)
-			userAgent = userAgents.get(0);
-		else
-			userAgent = "";
+		boolean failed = true;
+		try {
+			failed = context.getStatus().equals(FlowStatus.SUCCESS);
+		}catch (Exception e) {	
+			System.err.println(e.getStackTrace().toString());
+		}
 		
-		
-		boolean failed = context.getStatus().equals(FlowStatus.SUCCESS);
 		if(context.getUser().getEmail()!=null) {
 			email = context.getUser().getEmail();
 		}else {
@@ -66,7 +73,6 @@ public class GuardianKeyAuthenticator implements Authenticator {
 			GKAPI.sendEvent(session,username,email,failed,"Authentication", clientIP,userAgent);
 		}else {
 			Map<String,String> checkReturn = GKAPI.checkAccess(session,username,email,failed,"Authentication", clientIP,userAgent);
-			
 			if(checkReturn.get("response").equals("BLOCK")) {
                  Response challenge = context.form()
 							                .setError("blocked_attempt")
@@ -77,16 +83,32 @@ public class GuardianKeyAuthenticator implements Authenticator {
 				sendEmail(username,email,context,checkReturn);
 			}
 		}
-		
 		context.success();
 		return;
-		
 	}
 
 	private void sendEmail(String username, String email, AuthenticationFlowContext context, Map<String, String> checkReturn) {
-		// TODO Auto-generated method stub
 		Map<String,String> config = context.getAuthenticatorConfig().getConfig();
 
+		
+		if(config.get("guardiankey.emailmode")==null || config.get("guardiankey.emailmode").equals("None"))
+			return;
+		
+		Map<String,String> configSMTP = context.getRealm().getSmtpConfig();
+		KeycloakSession session = context.getSession();
+		UserModel user = context.getUser();
+		String subject = (config.get("guardiankey.emailsubject")!=null)? config.get("guardiankey.emailsubject") : "";
+		String textBody = "Hi";
+		String htmlBody = "Hi";
+        EmailSenderProvider emailSender = session.getProvider(EmailSenderProvider.class);
+        
+//        FreeMarkerUtil freeMarker = new FreeMarkerUtil();
+//        htmlBody = freeMarker.processTemplate(attributes, htmlTemplate, theme);
+        
+        try {
+			emailSender.send(configSMTP, user, subject, textBody, htmlBody);
+		} catch (EmailException e) {
+		}
 	}
 
 	@Override
@@ -103,10 +125,9 @@ public class GuardianKeyAuthenticator implements Authenticator {
 	public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) { }
 	
 	public void setConfig(Scope config) {
-		this.emailMode    = config.get("guardiankey.emailmode");
-		this.emailSubject = config.get("guardiankey.emailsubject");
-		this.adminEmail   = config.get("guardiankey.adminemail");
-		this.GKAPI.setConfig(config);
+		if (config==null)
+			return;
+		
 	}
 
 }
