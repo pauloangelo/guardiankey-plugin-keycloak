@@ -12,6 +12,10 @@ import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.FlowStatus;
 import org.keycloak.email.EmailException;
 import org.keycloak.email.EmailSenderProvider;
+import org.keycloak.events.Event;
+import org.keycloak.events.EventListenerProvider;
+import org.keycloak.events.EventType;
+import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
@@ -19,7 +23,7 @@ import org.keycloak.models.UserModel;
 
 // https://github.com/briantward/keycloak-custom/blob/master/providers/src/main/java/org/keycloak/custom/authentication/authenticators/SecretQuestionAuthenticator.java
 
-public class GuardianKeyAuthenticator implements Authenticator {
+public class GuardianKeyAuthenticator implements Authenticator, EventListenerProvider {
 	
     public static final GuardianKeyAPI GKAPI = new GuardianKeyAPI();
 
@@ -44,10 +48,8 @@ public class GuardianKeyAuthenticator implements Authenticator {
 		
 		String clientIP="";
 		String userAgent="";
-
 		try {
-			 clientIP = context.getSession().sessions().getUserSession(context.getAuthenticationSession().getClient().getRealm(),
-					                                                         context.getAuthenticationSession().getClient().getId()).getIpAddress();
+			 clientIP = context.getSession().getContext().getConnection().getRemoteAddr();
 		} catch (Exception e) {	}
 		
 		try {
@@ -56,12 +58,7 @@ public class GuardianKeyAuthenticator implements Authenticator {
 				userAgent = userAgents.get(0);	
 		} catch (Exception e) {	}
 		
-		boolean failed = true;
-		try {
-			failed = context.getStatus().equals(FlowStatus.SUCCESS);
-		}catch (Exception e) {	
-			System.err.println(e.getStackTrace().toString());
-		}
+		boolean failed = false;
 		
 		if(context.getUser().getEmail()!=null) {
 			email = context.getUser().getEmail();
@@ -129,5 +126,27 @@ public class GuardianKeyAuthenticator implements Authenticator {
 			return;
 		
 	}
+	
+	// https://www.keycloak.org/docs/3.3/server_development/topics/providers.html
+
+	@Override
+	public void onEvent(Event event) {
+
+//		event.getSessionId() 
+		
+		
+		 String clientIP = event.getIpAddress();
+//        if (event.getType().equals("LOGIN_ERROR")) {
+        if (event.getType().equals(EventType.LOGIN_ERROR)) {
+
+
+        }
+	}
+
+	@Override
+	public void onEvent(AdminEvent event, boolean includeRepresentation) {	}
 
 }
+
+
+
