@@ -9,13 +9,14 @@ import org.keycloak.Config.Scope;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
-import org.keycloak.authentication.FlowStatus;
 import org.keycloak.email.EmailException;
 import org.keycloak.email.EmailSenderProvider;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
-import org.keycloak.events.EventType;
 import org.keycloak.events.admin.AdminEvent;
+import org.keycloak.models.AuthenticationExecutionModel;
+import org.keycloak.models.AuthenticatorConfigModel;
+import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
@@ -26,6 +27,7 @@ import org.keycloak.models.UserModel;
 public class GuardianKeyAuthenticator implements Authenticator, EventListenerProvider {
 	
     public static final GuardianKeyAPI GKAPI = new GuardianKeyAPI();
+	public KeycloakSession session;
 
 
 	@Override
@@ -129,23 +131,58 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
 	
 	// https://www.keycloak.org/docs/3.3/server_development/topics/providers.html
 
+	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public void onEvent(Event event) {
-
-//		event.getSessionId() 
-		
-		
-		 String clientIP = event.getIpAddress();
-//        if (event.getType().equals("LOGIN_ERROR")) {
-        if (event.getType().equals(EventType.LOGIN_ERROR)) {
-
-
-        }
+	   if (event.getType().equals("LOGIN_ERROR")) {
+//		if (event.getType().equals(EventType.LOGIN_ERROR)) {
+			boolean failed = true;
+			AuthenticatorConfigModel authConfig = getConfig(session, GuardianKeyAuthenticatorFactory.PROVIDER_ID);
+			Map<String,String> config = authConfig.getConfig();
+			GKAPI.setConfig(config);
+			String clientIP = event.getIpAddress();
+			String username=event.getUserId();
+			KeycloakContext context = session.getContext();
+			String userAgent="";
+			try {
+				List<String> userAgents = context.getRequestHeaders().getRequestHeader("User-agent");
+				if(userAgents.size()>0)
+					userAgent = userAgents.get(0);	
+			} catch (Exception e) {	}
+			GKAPI.sendEvent(session,username,"",failed,"Authentication", clientIP,userAgent);
+		}
 	}
 
 	@Override
 	public void onEvent(AdminEvent event, boolean includeRepresentation) {	}
+	
+	private AuthenticatorConfigModel getConfig(KeycloakSession session, String providerId) {
+	    //logger.info("Getting config for: " + providerId);
+//	    AuthenticatorConfigModel configModel = null;
+	    RealmModel realm = session.getContext().getRealm();
+	    String flowId = realm.getBrowserFlow().getId();
+	    return getConfig(realm, flowId, providerId);
+	}
 
+	private AuthenticatorConfigModel getConfig(RealmModel realm, String flowId, String providerId) {
+	    //logger.info("Getting config for: " + flowId);
+	    AuthenticatorConfigModel configModel = null;
+	    List<AuthenticationExecutionModel> laem = realm.getAuthenticationExecutions(flowId);
+	    for (AuthenticationExecutionModel aem : laem) {
+	        //logger.info("aem: " + String.format("%s, %s, %s, %s", aem.getFlowId(), aem.getId(),
+	                //aem.isEnabled(),aem.isAuthenticatorFlow()));
+	        if (aem.isAuthenticatorFlow()) {
+	            //logger.info("flow: " + aem.getFlowId());
+	            configModel = getConfig(realm, aem.getFlowId(), providerId);
+	            if (configModel!= null) return configModel;
+	        } else if (aem.getAuthenticator() != null && aem.getAuthenticator().equals(providerId)) {
+	            //logger.info("authenticator: " + aem.getAuthenticator());
+	            configModel = realm.getAuthenticatorConfigById(aem.getAuthenticatorConfig());
+	            break;
+	        }
+	    }
+	    return configModel;
+	}
 }
 
 

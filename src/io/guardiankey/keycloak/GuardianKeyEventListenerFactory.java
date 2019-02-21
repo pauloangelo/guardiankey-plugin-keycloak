@@ -12,6 +12,7 @@ public class GuardianKeyEventListenerFactory implements EventListenerProviderFac
 
 	@Override
 	public EventListenerProvider create(KeycloakSession session) {
+		SINGLETON.session = session;
 		return SINGLETON;
 	}
 
