@@ -76,18 +76,18 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         property6.setHelpText("Enable reverse DNS resolve?");
         property6.setType(ProviderConfigProperty.BOOLEAN_TYPE);
         
-        List<String> listOptions=new ArrayList<String>();
-        listOptions.add("None");
+//        List<String> listOptions=new ArrayList<String>();
+//        listOptions.add("None");
 //        listOptions.add("Admin only");
-        listOptions.add("Notify Users");
+//        listOptions.add("Notify Users");
 //        listOptions.add("Admin and users");
         ProviderConfigProperty property7;
         property7 = new ProviderConfigProperty();
-        property7.setName("guardiankey.emailmode");
-        property7.setLabel("Send e-mails to");
-        property7.setHelpText("Who should receive event notification e-mails?");
-        property7.setType(ProviderConfigProperty.MULTIVALUED_LIST_TYPE);
-        property7.setOptions(listOptions);
+        property7.setName("guardiankey.sendmails");
+        property7.setLabel("Send e-mails?");
+        property7.setHelpText("Users should receive event notification by e-mail?");
+        property7.setType(ProviderConfigProperty.BOOLEAN_TYPE);
+//        property7.setOptions(listOptions);
         
         ProviderConfigProperty property8;
         property8 = new ProviderConfigProperty();

@@ -86,8 +86,8 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
         	
 			if(checkReturn.get("response").equals("BLOCK")) {
                  Response challenge = context.form()
-							                .setError("blocked_attempt")
-							                .createForm("error_page.ftl");
+							                .setError("Attempt blocked by GuardianKey.")
+							                .createForm("error.ftl");
 				 context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
 				 return;
 			}else if(checkReturn.get("response").equals("NOTIFY") || checkReturn.get("response").equals("HARD_NOTIFY")) {
@@ -102,12 +102,12 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
 		Map<String,String> config = context.getAuthenticatorConfig().getConfig();
 
 		
-		if(config.get("guardiankey.emailmode")==null || config.get("guardiankey.emailmode").equals("None"))
+		if(config.get("guardiankey.sendmails")==null || config.get("guardiankey.sendmails").equals("false"))
 			return;
 		
 		String datetime = "recently";
         try {
-	    	Date dateFromTime = new Date( (new Long(checkReturn.get("generatedTime"))) *1000 );
+	    	Date dateFromTime = new Date( (new Long(checkReturn.get("generatedTime"))) *1000L );
 	    	DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
 	    	datetime = dateFormatter.format(dateFromTime)+" (UTC)";
 		} catch (Exception e) {	}
