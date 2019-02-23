@@ -104,6 +104,14 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
 //        property9.setHelpText("The admin e-mail, that may receive alert e-mails.");
 //        property9.setType(ProviderConfigProperty.STRING_TYPE);
         
+        ProviderConfigProperty property9;
+        property9 = new ProviderConfigProperty();
+        property9.setName("guardiankey.panelurl");
+        property9.setLabel("PANEL URL");
+        property9.setHelpText("The GuardianKey PANEL URL. E.g., 'https://panel.guardiankey.io'");
+        property9.setDefaultValue("https://panel.guardiankey.io");
+        property9.setType(ProviderConfigProperty.STRING_TYPE);
+        
         ProviderConfigProperty property10;
         property10 = new ProviderConfigProperty();
         property10.setName("guardiankey.apiurl");
@@ -129,7 +137,7 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         configProperties.add(property6);
         configProperties.add(property7);
         configProperties.add(property8);
-//        configProperties.add(property9);
+        configProperties.add(property9);
         configProperties.add(property10);
         configProperties.add(property11);
     }

@@ -25,6 +25,12 @@
 			<scope>provided</scope>
 			<version>4.8.3.Final</version>
 		</dependency>
+		
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-themes</artifactId>
+            <version>4.8.3.Final</version>
+        </dependency>
 
 		<dependency>
 			<groupId>org.keycloak</groupId>
@@ -51,6 +57,12 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.8.2</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.freemarker</groupId>
+		    <artifactId>freemarker</artifactId>
+		    <version>2.3.26-incubating</version>
 		</dependency>
 
 	</dependencies>

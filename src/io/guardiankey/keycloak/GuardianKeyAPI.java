@@ -73,7 +73,7 @@ public class GuardianKeyAPI {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String,Object> postMsg(HttpClient HTTPclient, String URI, String msg) {
+	private Map<String,String> postMsg(HttpClient HTTPclient, String URI, String msg) {
 		try {
 			HttpPost post = new HttpPost(URI);
 			post.setHeader("Content-type", "application/json");
@@ -87,7 +87,7 @@ public class GuardianKeyAPI {
 			HttpEntity entity = response.getEntity();
 			String json = EntityUtils.toString(entity, StandardCharsets.UTF_8);
 			
-			Map<String,Object> map = new HashMap<String,Object>();
+			Map<String,String> map = new HashMap<String,String>();
 		    Gson gson = new GsonBuilder().create();
 	        return gson.fromJson(json, map.getClass());
 //			return new JSONObject(json);
@@ -111,29 +111,28 @@ public class GuardianKeyAPI {
 
 
 	
-	  private Map<String,Object> postMsgTimeout(KeycloakSession session, String URI, String msg) {
-		  
+	  private Map<String,String> postMsgTimeout(KeycloakSession session, String URI, String msg) {
 
-			HttpClientProvider provider = session.getProvider(HttpClientProvider.class);
-			HttpClient client = provider.getHttpClient();
-		Callable<Map<String,Object>> taskToSubmit = new Callable<Map<String,Object>>() {
-											     @Override
-											     public Map<String,Object> call() {
-											      	return postMsg( client,  URI,  msg);
-											     }
-											};
-	    ExecutorService executor = Executors.newSingleThreadExecutor();
-	    Future<Map<String,Object>> future = executor.submit(taskToSubmit);
-	    executor.shutdown(); // This does not cancel the already-scheduled task.
-	    Map<String,Object> o=null;
-	    try {
-	    	o= future.get(4, TimeUnit.SECONDS);
-		} catch (Exception e) {	}
+		  HttpClientProvider provider = session.getProvider(HttpClientProvider.class);
+		  HttpClient client = provider.getHttpClient();
+		  Callable<Map<String,String>> taskToSubmit = new Callable<Map<String,String>>() {
+			  @Override
+			  public Map<String,String> call() {
+				  return postMsg( client,  URI,  msg);
+			  }
+		  };
+		  ExecutorService executor = Executors.newSingleThreadExecutor();
+		  Future<Map<String,String>> future = executor.submit(taskToSubmit);
+		  executor.shutdown(); // This does not cancel the already-scheduled task.
+		  Map<String,String> o=null;
+		  try {
+			  o= future.get(4, TimeUnit.SECONDS);
+		  } catch (Exception e) {	}
 
-		if (!executor.isTerminated())
-		    executor.shutdownNow();
-		
-		return o;
+		  if (!executor.isTerminated())
+			  executor.shutdownNow();
+
+		  return o;
 	}
 	
 	private byte[] encrypt(String txtMsg) {
@@ -207,15 +206,21 @@ public class GuardianKeyAPI {
 		HashMap<String,String> returnObj = new HashMap<String,String>();
 		String msg=createMsg(username,email,loginFailed,eventType, clientIP,userAgent);
 		String uri = this.APIURI+"/checkaccess";
-		Map<String,Object> o = postMsgTimeout( session,  uri,  msg);
+		Map<String,String> o = postMsgTimeout( session,  uri,  msg);
 		
 		if(o==null) {
 			returnObj.put("response", "ERROR");
 		}else {
-			try {
-				returnObj.put("response",o.get("response").toString());
-			} catch (Exception e) {
+//			try {
+//				returnObj.put("response",o.get("response").toString());
+//			} catch (Exception e) {
+//				returnObj.put("response", "ERROR");
+//			}
+			if(o.containsKey("response"))
+				return o;
+			else {
 				returnObj.put("response", "ERROR");
+				return returnObj;
 			}
 		}
 		
@@ -226,7 +231,7 @@ public class GuardianKeyAPI {
 		HashMap<String,String> returnObj = new HashMap<String,String>();
 		String msg=createMsg(username,email,loginFailed,eventType, clientIP,userAgent);
 		String uri = this.APIURI+"/sendevent";
-		Map<String,Object> o =  postMsgTimeout( session,  uri,  msg);
+		Map<String,String> o =  postMsgTimeout( session,  uri,  msg);
 		
 		if(o==null) {
 			returnObj.put("response", "ERROR");
