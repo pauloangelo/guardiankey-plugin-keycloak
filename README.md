@@ -89,7 +89,7 @@ The GuardianKey Authenticator must be set-up to **REQUIRED** and should be last 
 
 You have to open the [GuardianKey's panel](https://panel.guardiankey.io) and get the deployment information
 for your system. 
-It can be found when viewing an Authgroup, `Deployment information` tab, such as in the image below.
+It can be found when viewing an Authgroup, `Deploy information` tab, such as in the image below.
 
 ![Getting the deployment information at the Panel](https://guardiankey.io/img-panel/authgroup_deploy_information.png)
 
