@@ -38,14 +38,14 @@ To deploy the extension, you must:
 1. Download and move the `guardiankey.jar` file to the `deployments` directory of your KeyCloak installation, for example:
 
 ```
-$ wget https://github.com....
+$ wget https://github.com/pauloangelo/guardiankey-plugin-keycloak/releases/download/v0.9-beta/guardiankey.jar
 $ cp guardiankey.jar /opt/jboss/keycloak/standalone/deployments/
 ```
 
 2. Copy the e-mail template into the `email` directory of the theme used by your installation, for example:
 
 ```
-$ wget https://github.com....
+$ wget https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
 $ cp guardiankey-security_alert.ftl /opt/jboss/keycloak/themes/keycloak/email/
 ```
 
