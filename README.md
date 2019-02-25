@@ -38,7 +38,7 @@ To deploy the extension, you must:
 1. Download and move the `guardiankey.jar` file to the `deployments` directory of your KeyCloak installation, for example:
 
 ```
-$ wget https://github.com/pauloangelo/guardiankey-plugin-keycloak/releases/download/v0.9-beta/guardiankey.jar
+$ wget https://github.com/pauloangelo/guardiankey-plugin-keycloak/releases/download/v0.9.1-beta/guardiankey.jar
 $ cp guardiankey.jar /opt/jboss/keycloak/standalone/deployments/
 ```
 
