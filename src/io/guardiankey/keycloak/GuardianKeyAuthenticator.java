@@ -45,21 +45,31 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
 
 	@Override
 	public void authenticate(AuthenticationFlowContext context) {
-			
+
 		String email;
-		Map<String,String> config = context.getAuthenticatorConfig().getConfig();
-		KeycloakSession session = context.getSession();
-		
-		if(context.getUser()==null) {
+		String clientIP="";
+		String userAgent="";
+		Map<String,String> config;
+		KeycloakSession session;
+		String username;
+		String systemURL;
+		try {
+			config = context.getAuthenticatorConfig().getConfig();
+			session = context.getSession();
+			
+			if(context.getUser()==null) {
+				return;
+			}
+			
+			GKAPI.setConfig(config);
+			
+			username=context.getUser().getUsername();
+			systemURL = context.getRefreshExecutionUrl().getHost().toString();
+		} catch (Exception e) {
+			context.success();
 			return;
 		}
 		
-		GKAPI.setConfig(config);
-		
-		String username=context.getUser().getUsername();
-		String clientIP="";
-		String userAgent="";
-		String systemURL = context.getRefreshExecutionUrl().getHost().toString();
 		try {
 			 clientIP = context.getSession().getContext().getConnection().getRemoteAddr();
 		} catch (Exception e) {	}
