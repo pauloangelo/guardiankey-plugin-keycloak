@@ -10,6 +10,8 @@ For more information, check https://guardiankey.io
 
 Below, we describe how you can use the KeyCloak's GuardianKey extension to access the GuardianKey engine in in cloud.
 
+A video for this tutorial is available at https://youtu.be/R5QFcH4bXuA 
+
 In **summary**, you should:
 
 1. Register an user at https://panel.guardiankey.io/auth/register
