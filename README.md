@@ -1,6 +1,5 @@
 * Tested from version 4.8.3 up to 7.0.1
 
-
 # 1. What is GuardianKey
 
 GuardianKey is a solution to protect systems against authentication attacks. It uses Machine Learning to analyze the user's behavior, threat intelligence, and psychometrics (or behavioral biometrics) and provides an attack risk in real-time. 
